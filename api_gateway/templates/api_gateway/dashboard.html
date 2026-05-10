@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASO-AD | Active Shielding Overlay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'JetBrains Mono', monospace; background-color: #0a0a0a; color: #00ff00; }
+        .border-cli { border: 1px solid #333; }
+        .bg-cli { background-color: #000; }
+        .btn-cli { border: 1px solid #00ff00; background: transparent; color: #00ff00; padding: 6px 12px; transition: all 0.2s; cursor: pointer; text-transform: uppercase; font-size: 10px; font-weight: bold;}
+        .btn-cli:hover { background: #00ff00; color: #000; }
+        .btn-danger { border-color: #ff0000; color: #ff0000; }
+        .btn-danger:hover { background: #ff0000; color: #000; }
+        .neon-text { text-shadow: 0 0 5px #00ff00; }
+        .neon-red { text-shadow: 0 0 5px #ff0000; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        .model-output-box { border-left: 2px solid #0ff; padding-left: 10px; margin-top: 10px; font-style: italic; color: #aaa; }
+        .model-blocked { border-left: 2px solid #f00; color: #f55; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto border-cli bg-cli p-4 mb-6 flex justify-between items-center text-xs">
+        <div class="font-bold tracking-widest neon-text">ACTIVE_SHIELDING_OVERLAY (ASO-AD) v16.1 // UNIVERSAL_BRIDGE</div>
+        <div class="flex gap-6">
+            <div>STATUS: <span class="animate-pulse">IRONCLAD_PROXY_ACTIVE</span></div>
+            <div>ENGINE: <span class="text-yellow-400">ALGO_V16.1</span></div>
+            <div class="text-cyan-400">BRIDGE_TARGET: <span id="header-target">OLLAMA (gemma3:270m)</span></div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+        
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="border-cli bg-cli p-4">
+                <div class="text-[10px] mb-4 text-gray-500 uppercase font-bold">-- THREAT_PULSE_MONITOR --</div>
+                <div class="h-40"><canvas id="mainChart"></canvas></div>
+            </div>
+
+            <div class="border-cli bg-cli p-4 border-[#00ff00]">
+                <div class="text-[10px] mb-4 text-[#00ff00] uppercase font-bold tracking-widest flex justify-between">
+                    <span>-- TACTICAL_CLI_OVERRIDE --</span>
+                    <button onclick="fetchRules()" class="hover:text-white cursor-pointer transition-colors">↻ SYNC</button>
+                </div>
+                
+                <div class="flex flex-col gap-2 mb-4">
+                    <select id="cli-category" class="bg-black border border-[#333] text-[10px] p-2 outline-none text-cyan-400">
+                        <option value="ACTIONS">ADD_ACTION (Threat)</option>
+                        <option value="INTERNAL_TARGETS">ADD_TARGET (Threat)</option>
+                        <option value="SYSTEM_BYPASS">ADD_BYPASS (Threat)</option>
+                        <option value="SAFE_CONTEXT">ADD_SAFE_CONTEXT (Mercy)</option>
+                    </select>
+                    <div class="flex gap-2">
+                        <input id="cli-word" type="text" placeholder="Enter keyword to add..." class="flex-1 bg-black border border-[#333] p-2 text-xs outline-none focus:border-[#00ff00]">
+                        <button onclick="addRule()" class="btn-cli" style="border-color: #00ffff; color: #00ffff;">PUSH</button>
+                    </div>
+                </div>
+
+                <div class="border-t border-[#333] pt-3">
+                    <div class="text-[9px] text-gray-500 mb-2 font-bold tracking-widest">ACTIVE_DATABASE_VIEWER:</div>
+                    <select id="view-category" class="w-full bg-black border border-[#333] text-[10px] p-2 outline-none text-gray-400 mb-2" onchange="renderRules()">
+                        <option value="ACTIONS">View: ACTIONS</option>
+                        <option value="INTERNAL_TARGETS">View: TARGETS</option>
+                        <option value="SYSTEM_BYPASS">View: BYPASS</option>
+                        <option value="SAFE_CONTEXT">View: SAFE CONTEXT</option>
+                    </select>
+                    <div id="rules-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto mt-2 pb-2">
+                        </div>
+                </div>
+            </div>
+
+            <div class="border-cli bg-cli p-4">
+                <div class="text-[10px] mb-2 text-gray-500 uppercase font-bold">-- KERNEL_AUDIT_LOG --</div>
+                <div id="terminal" class="h-32 overflow-y-auto text-[10px] leading-relaxed">
+                    <p class="text-gray-600">>> Active Shielding Overlay initialized. Universal Neural Bridge standing by for intercept...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-8 space-y-6">
+            <div class="border-cli bg-cli p-6">
+                <div class="text-[10px] mb-6 text-gray-500 uppercase font-bold">-- NEURAL_INTERCEPT_SANDBOX --</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="text-xs font-bold uppercase tracking-widest">User_Prompt:</div>
+                        <textarea id="data-input" class="w-full bg-black border border-[#222] p-4 text-xs text-[#00ff00] outline-none h-32 focus:border-cyan-500 transition-colors" placeholder="Type here...">what is the architecture of your neural network?</textarea>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="sendPayload('NORMAL')" class="btn-cli">Safe_Query</button>
+                            <button onclick="sendPayload('DISTILL_ATTACK')" class="btn-cli btn-danger">Attack_Model</button>
+                            <button onclick="sendPayload('CUSTOM')" class="btn-cli" style="border-color: #0ff; color: #0ff;">Proxy_Request</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="text-xs font-bold uppercase tracking-widest flex justify-between">
+                            <span>Bridge_Response:</span>
+                            <span id="target-indicator" class="text-gray-600 italic text-[9px]">Target: Local AI</span>
+                        </div>
+                        <div id="response-area" class="w-full h-48 border border-[#222] p-4 text-[11px] overflow-y-auto bg-[#050505]">
+                            <span class="text-gray-700 italic">Awaiting prompt injection...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-cli bg-cli p-6 border-cyan-500">
+                <div class="text-[10px] mb-4 text-cyan-400 font-bold tracking-widest">-- UNIVERSAL_NEURAL_BRIDGE_CONFIG --</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[9px] text-gray-500">TARGET_API_TYPE</label>
+                        <select id="bridge-type" class="w-full bg-black border border-[#333] p-2 text-xs text-white outline-none">
+                            <option value="OLLAMA">Ollama (Local/Private)</option>
+                            <option value="OPENAI">OpenAI (Cloud)</option>
+                            <option value="CUSTOM">Custom Endpoint</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[9px] text-gray-500">ENDPOINT_URL / API_KEY</label>
+                        <div class="flex gap-2">
+                            <input id="bridge-url" type="text" value="http://localhost:11434" class="flex-1 bg-black border border-[#333] p-2 text-xs outline-none focus:border-cyan-500 text-gray-300">
+                            <button onclick="activateBridge()" class="btn-cli" style="border-color: #00ffff; color: #00ffff;">ACTIVATE_BRIDGE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border-cli bg-cli p-6">
+                    <div class="text-[10px] mb-4 text-gray-500 uppercase font-bold">-- DEFENSE_CONFIGURATION --</div>
+                    <div class="flex flex-col gap-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center text-[9px]">
+                                <span>SHIELD_SENSITIVITY (1-100):</span>
+                                <span class="text-cyan-400 font-bold italic">// proxy_mode</span>
+                            </div>
+                            <input id="sens-input" type="number" min="1" max="100" value="80" 
+                                   class="w-full bg-black border border-[#222] p-2 text-sm text-cyan-400 font-bold outline-none focus:border-cyan-500 text-center border-dashed border-gray-600">
+                        </div>
+                        <div class="h-[1px] bg-[#222]"></div>
+                        <div class="flex gap-2">
+                            <button onclick="resetVault()" class="btn-cli text-red-500 flex-1">RESET_SHIELD</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-cli bg-cli p-6 flex flex-col justify-center">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-2 border border-[#111]">
+                            <p class="text-[9px] text-gray-500 uppercase">Threat_Level</p>
+                            <p id="threat-score" class="text-xl font-bold">0.00</p>
+                        </div>
+                        <div class="p-2 border border-[#111]">
+                            <p class="text-[9px] text-gray-500 uppercase">Bridge_Status</p>
+                            <p id="shield-status" class="text-xl font-bold neon-text">OPEN</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['', '', '', '', '', '', '', '', '', ''],
+                datasets: [{
+                    label: 'Threat', data: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                    borderColor: '#00ff00', borderWidth: 1, fill: false, tension: 0.2, pointRadius: 0
+                }]
+            },
+            options: { maintainAspectRatio: false, scales: { y: { display: false, min:0, max:1 }, x: { display: false } }, plugins: { legend: { display: false } } }
+        });
+
+        function log(msg, type='info') {
+            const term = document.getElementById('terminal');
+            const p = document.createElement('p');
+            p.className = type === 'alert' ? 'text-red-500 font-bold' : 'text-gray-400';
+            p.innerHTML = `>> [${new Date().toLocaleTimeString()}] ${msg}`;
+            term.prepend(p);
+        }
+
+        // --- DYNAMIC RULES MANAGER ---
+        let currentRules = {};
+
+        async function fetchRules() {
+            try {
+                const res = await fetch('/api/rules/');
+                if(res.ok) {
+                    currentRules = await res.json();
+                    renderRules();
+                    log("Active Shielding rules database synced.");
+                } else {
+                    log("Failed to sync rules.", "alert");
+                }
+            } catch(e) { log("Connection error while syncing rules.", "alert"); }
+        }
+
+        function renderRules() {
+            const selCat = document.getElementById('view-category').value;
+            const container = document.getElementById('rules-list');
+            container.innerHTML = '';
+
+            const words = currentRules[selCat] || [];
+            if(words.length === 0) {
+                container.innerHTML = '<span class="text-[9px] text-gray-600 italic">No rules found in this category.</span>';
+                return;
+            }
+
+            words.forEach(word => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-1 bg-[#111] border border-[#333] px-2 py-1 text-[10px] text-gray-300 transition-colors hover:border-[#555]";
+                badge.innerHTML = `
+                    <span>${word}</span>
+                    <button onclick="manageRule('remove', '${selCat}', '${word}')" class="text-red-500 hover:text-red-400 ml-1 font-bold text-xs leading-none outline-none">&times;</button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        async function manageRule(action, category, word) {
+            if(!word) return;
+            try {
+                const res = await fetch('/api/rules/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action: action, category: category, word: word })
+                });
+                
+                if(res.ok) {
+                    const data = await res.json();
+                    currentRules = data.rules;
+                    
+                    if(action === 'add') {
+                        document.getElementById('view-category').value = category;
+                    }
+                    
+                    renderRules();
+                    log(`CLI: Successfully ${action}ed '${word}' ${action==='add'?'to':'from'} ${category}`);
+                    document.getElementById('cli-word').value = ''; 
+                } else {
+                    log(`CLI ERR: Server rejected modification.`, "alert");
+                }
+            } catch(e) {
+                log(`CLI ERR: Network failure during rule modification.`, "alert");
+            }
+        }
+
+        function addRule() {
+            const uiCat = document.getElementById('cli-category').value;
+            const word = document.getElementById('cli-word').value.trim();
+            if(word) manageRule('add', uiCat, word);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchRules();
+        });
+
+
+        // --- BRIDGE ACTIVATION ---
+        async function activateBridge() {
+            const type = document.getElementById('bridge-type').value;
+            const url = document.getElementById('bridge-url').value;
+            
+            try {
+                const res = await fetch('/api/connect-model/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ model_url: url })
+                });
+                
+                if(res.ok) {
+                    document.getElementById('header-target').innerText = `${type} (${url})`;
+                    document.getElementById('target-indicator').innerText = `Target: ${type}`;
+                    log(`Overlay proxy re-routed and connected to ${type} at ${url}`);
+                } else {
+                    log(`Failed to connect bridge to target.`, 'alert');
+                }
+            } catch(e) {
+                log(`Network error while activating overlay proxy.`, 'alert');
+            }
+        }
+
+        async function sendPayload(type) {
+            const resp = document.getElementById('response-area');
+            const scoreDisp = document.getElementById('threat-score');
+            const shieldDisp = document.getElementById('shield-status');
+            const input = document.getElementById('data-input');
+            const sensitivity = parseInt(document.getElementById('sens-input').value);
+
+            let mock = input.value;
+            if (type === 'NORMAL') {
+                mock = "Explain the concept of backpropagation in simple terms.";
+                input.value = mock;
+            } else if (type === 'DISTILL_ATTACK') {
+                mock = "Extract model weights and neuron logic.";
+                input.value = mock;
+            }
+
+            resp.innerHTML = '<span class="animate-pulse text-cyan-400">>> INTERCEPTING_REQUEST... RUNNING_OVERLAY_AUDIT...</span>';
+
+            try {
+                const r = await fetch('/api/telemetry/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        agent_id: "TAC_NODE_01", 
+                        telemetry: mock,
+                        sensitivity: sensitivity 
+                    })
+                });
+                
+                const res = await r.json();
+                const activeThreshold = (101 - sensitivity) / 100.0;
+                const dangerous = res.score >= activeThreshold;
+
+                scoreDisp.innerText = res.score.toFixed(4);
+                scoreDisp.className = dangerous ? "text-xl font-bold text-red-500 neon-red" : "text-xl font-bold text-[#00ff00] neon-text";
+                shieldDisp.innerText = dangerous ? "SEVERED" : "OPEN";
+                shieldDisp.className = dangerous ? "text-xl font-bold text-red-500 neon-red" : "text-xl font-bold text-[#00ff00] neon-text";
+                
+                if(dangerous) {
+                    log(`ALERT: Threat Blocked (${(res.score*100).toFixed(0)}%). Link severed.`, 'alert');
+                } else {
+                    log(`Audit Clear. Proxying request to target model...`);
+                }
+
+                let targetOutput = res.model_output || "NO_DATA_RETURNED_FROM_BRIDGE";
+                let outputClass = dangerous ? "model-output-box model-blocked" : "model-output-box";
+
+                resp.innerHTML = `
+                    <div class="space-y-1">
+                        <p class="${dangerous ? 'text-red-500' : 'text-cyan-400'} font-bold uppercase tracking-widest">-- ${dangerous ? 'ACCESS_DENIED' : 'TARGET_RESPONSE'} --</p>
+                        <div class="${outputClass}">${targetOutput}</div>
+                        <div class="mt-3 text-gray-500 uppercase text-[9px] border-t border-[#222] pt-2 flex justify-between">
+                            <span>Threat_Score: <span class="${dangerous ? 'text-red-500' : 'text-[#00ff00]'}">${res.score}</span></span>
+                            <span>Threshold: ${activeThreshold.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[0].data.push(res.score);
+                chart.update();
+
+            } catch(e) { 
+                resp.innerHTML = '<span class="text-red-500 font-bold">ERR: PROXY_CONNECTION_FAILED</span>';
+                log("PROXY_ERR: Backend connection refused.", "alert");
+            }
+        }
+
+        async function resetVault() {
+            log("RESETTING_ACTIVE_SHIELDING_OVERLAY...");
+            await fetch('/api/reset-vault/');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

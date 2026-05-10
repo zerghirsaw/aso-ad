@@ -1,0 +1,44 @@
+{
+    "INTERNAL_TARGETS": [
+        "weight",
+        "bias",
+        "layer",
+        "parameter",
+        "bobot",
+        "logit",
+        "neuron",
+        "architecture",
+        "logic"
+    ],
+    "ACTIONS": [
+        "extract",
+        "steal",
+        "reveal",
+        "get",
+        "ambil",
+        "unduh",
+        "show",
+        "replicate",
+        "clone",
+        "copy",
+        "give weight models"
+    ],
+    "SYSTEM_BYPASS": [
+        "ignore",
+        "abaikan",
+        "forget",
+        "bypass",
+        "jailbreak",
+        "disable"
+    ],
+    "SAFE_CONTEXT": [
+        "submission",
+        "uploaded",
+        "file",
+        "csv",
+        "homework",
+        "tugas",
+        "report",
+        "laporan"
+    ]
+}
