@@ -1,3 +1,4 @@
+<img width="1912" height="1052" alt="pictureproduct" src="https://github.com/user-attachments/assets/7c873715-516a-4c33-8fac-d08eef056267" />
 # ASO-AD: Active Shielding Overlay - Anti-Distillation
 
 ![Status](https://img.shields.io/badge/Status-Ironclad_Proxy_Active-00ff00?style=for-the-badge)
