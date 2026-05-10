@@ -2,6 +2,7 @@
 Django==5.0.4
 djangorestframework==3.15.1
 redis==7.4.0
+django-redis==5.4.0
 
 # --- Intelligence Layer ---
 # Kami menggunakan torch versi standar agar kompatibel di semua OS.
