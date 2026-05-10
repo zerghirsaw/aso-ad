@@ -1,16 +1,23 @@
+# ==========================================
 # ASO-AD Infrastructure - Requirements
+# ==========================================
+
+# --- Base Framework ---
 Django==5.0.4
 djangorestframework==3.15.1
+asgiref==3.11.1
+sqlparse==0.5.5
 redis==7.4.0
 django-redis==5.4.0
 
 # --- Intelligence Layer ---
-# Kami menggunakan torch versi standar agar kompatibel di semua OS.
-# Untuk performa maksimal di GPU AMD (ROCm), lihat panduan di README.
+# Menggunakan torch versi standar untuk kompatibilitas universal.
+# Untuk optimasi GPU AMD (ROCm), silakan merujuk ke README.md.
 torch==2.3.0
 numpy==1.26.4
 scikit-learn==1.4.2
 scipy==1.17.1
+joblib==1.5.3
 
 # --- Utilities ---
 requests==2.33.1
